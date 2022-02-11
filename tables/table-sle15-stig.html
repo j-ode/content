@@ -1142,7 +1142,8 @@ Output will be similar to:
 /dev/sda2: UUID=" bc98d7ef-6g54-321h-1d24-9870de2ge1a2
 " TYPE="crypto_LUKS"
 
-Pseudo-file systems, such as /proc, /sys, and tmpfs, are not required to use disk encryption and are not a finding.
+The boot partition and pseudo-file systems, such as /proc, /sys, and tmpfs,
+are not required to use disk encryption and are not a finding.
       Is it the case that partitions do not have a type of crypto_LUKS?
       </td>
 <td>SUSE Linux Enterprise 15 natively supports partition encryption through the
@@ -2831,7 +2832,8 @@ and the user will not have to re-authenticate for privileged actions until the u
 the invoking user for the "root" user password.</td>
 <td>Run the following command to Verify that the sudoers security policy is configured to use the invoking user's password for privilege escalation:
  sudo egrep -i '(!rootpw|!targetpw|!runaspw)' /etc/sudoers /etc/sudoers.d/* | grep -v '#'
-If no results are returned, this is a finding
+If no results are returned, this is a finding.
+If results are returned from more than one file location, this is a finding.
 If "Defaults !targetpw" is not defined, this is a finding.
 If "Defaults !rootpw" is not defined, this is a finding.
 If "Defaults !runaspw" is not defined, this is a finding.
