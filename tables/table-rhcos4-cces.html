@@ -156,12 +156,11 @@ FIPS mode by automatically configuring the following:
 </li>
 <li>Creating <code>/etc/system-fips</code>
 </li>
-<li>Setting the system crypto policy in <code>/etc/crypto-policies/config</code> to <code>FIPS</code>
+<li>Setting the system crypto policy in <code>/etc/crypto-policies/config</code> to <code><xccdf-1.1:sub xmlns:xccdf-1.1="http://checklists.nist.gov/xccdf/1.1" idref="var_system_crypto_policy"></xccdf-1.1:sub></code>
 </li>
 <li>Loading the Dracut <code>fips</code> module</li>
 </ul>
-This rule also ensures that the system policy is set to <code><xccdf-1.1:sub xmlns:xccdf-1.1="http://checklists.nist.gov/xccdf/1.1" idref="var_system_crypto_policy"></xccdf-1.1:sub></code>.
-Furthermore, the system running in FIPS mode should be FIPS certified by NIST.</td>
+</td>
 </tr>
 <tr>
 <td></td>
@@ -738,6 +737,14 @@ To properly set the permissions of <code>/etc/issue</code>, run the command:
 </tr>
 <tr>
 <td></td>
+<td>Disallow Configuration to Bypass Password Requirements for Privilege Escalation</td>
+<td xml:lang="en-US">Verify the operating system is not configured to bypass password requirements for privilege
+escalation. Check the configuration of the "/etc/pam.d/sudo" file with the following command:
+<pre>$ sudo grep pam_succeed_if /etc/pam.d/sudo</pre>
+If any occurrences of "pam_succeed_if" is returned from the command, this is a finding.</td>
+</tr>
+<tr>
+<td></td>
 <td>Ensure PAM Displays Last Logon/Access Notification</td>
 <td xml:lang="en-US">To configure the system to notify users of last logon/access
 using <code>pam_lastlog</code>, add or correct the <code>pam_lastlog</code>
@@ -926,11 +933,7 @@ The console can now be locked with the following key combination:
 <td>Support session locking with tmux</td>
 <td xml:lang="en-US">The <code>tmux</code> terminal multiplexer is used to implement
 automatic session locking. It should be started from
-<code>/etc/bashrc</code> or drop-in files within <code>/etc/profile.d/</code>.
-Additionally it must be ensured that the <code>tmux</code> process is running
-and it can be verified with the following command:
-<pre>ps all | grep tmux | grep -v grep</pre>
-</td>
+<code>/etc/bashrc</code> or drop-in files within <code>/etc/profile.d/</code>.</td>
 </tr>
 <tr>
 <td></td>
@@ -1069,6 +1072,21 @@ Note that this rule is not applicable for systems running within a
 container. Having user with empty password within a container is not
 considered a risk, because it should not be possible to directly login into
 a container anyway.</td>
+</tr>
+<tr>
+<td></td>
+<td>Ensure There Are No Accounts With Blank or Null Passwords</td>
+<td xml:lang="en-US">Check the "/etc/shadow" file for blank passwords with the
+following command:
+<pre>$ sudo awk -F: '!$2 {print $1}' /etc/shadow</pre>
+If the command returns any results, this is a finding.
+Configure all accounts on the system to have a password or lock
+the account with the following commands:
+Perform a password reset:
+<pre>$ sudo passwd [username]</pre>
+Lock an account:
+<pre>$ sudo passwd -l [username]</pre>
+</td>
 </tr>
 <tr>
 <td></td>
@@ -4025,10 +4043,10 @@ This is the default setting.</td>
 
 The following rules configure audit as described above:
 <pre>## Unsuccessful file access (any other opens) This has to go last.
--a always,exit -F arch=b32 -S open,openat,open_by_handle_at -F exit=-EACCES -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access
--a always,exit -F arch=b64 -S open,openat,open_by_handle_at -F exit=-EACCES -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access
--a always,exit -F arch=b32 -S open,openat,open_by_handle_at -F exit=-EPERM -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access
--a always,exit -F arch=b64 -S open,openat,open_by_handle_at -F exit=-EPERM -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access    </pre>    
+-a always,exit -F arch=b32 -S open,openat,openat2,open_by_handle_at -F exit=-EACCES -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access
+-a always,exit -F arch=b64 -S open,openat,openat2,open_by_handle_at -F exit=-EACCES -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access
+-a always,exit -F arch=b32 -S open,openat,openat2,open_by_handle_at -F exit=-EPERM -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access
+-a always,exit -F arch=b64 -S open,openat,openat2,open_by_handle_at -F exit=-EPERM -F auid&gt;=1000 -F auid!=unset -F key=unsuccessful-access    </pre>    
 
 Load new Audit rules into kernel by running:
 <pre>augenrules --load</pre>
@@ -4043,8 +4061,8 @@ Note: This rule utilizes a file provided by <code>Audit</code> package to comply
 The following rules configure audit as described above:
 <pre>## Successful file access (any other opens) This has to go last.
 ## These next two are likely to result in a whole lot of events
--a always,exit -F arch=b32 -S open,openat,open_by_handle_at -F success=1 -F auid&gt;=1000 -F auid!=unset -F key=successful-access
--a always,exit -F arch=b64 -S open,openat,open_by_handle_at -F success=1 -F auid&gt;=1000 -F auid!=unset -F key=successful-access    </pre>
+-a always,exit -F arch=b32 -S open,openat,openat2,open_by_handle_at -F success=1 -F auid&gt;=1000 -F auid!=unset -F key=successful-access
+-a always,exit -F arch=b64 -S open,openat,openat2,open_by_handle_at -F success=1 -F auid&gt;=1000 -F auid!=unset -F key=successful-access    </pre>
 
 The <code>Audit</code> package provides pre-configured  rules in <code>/usr/share/audit/sample-rules</code>. The above content can be found in <code>/usr/share/audit/sample-rules/30-ospp-v42-3-access-success.rules</code>.
 To deploy this configuration, it is recommended to copy it over to the <code>/etc/audit/rules.d/</code> directory:
@@ -4355,6 +4373,10 @@ The following rules configure audit as described above:
 
 ## Privilege escalation via su or sudo. This is entirely handled by pam.
 
+## Watch for configuration changes to privilege escalation.
+-a always,exit -F path=/etc/sudoers -F perm=wa -F key=special-config-changes
+-a always,exit -F dir=/etc/sudoers.d/ -F perm=wa -F key=special-config-changes
+
 ## Audit log access
 -a always,exit -F dir=/var/log/audit/ -F perm=r -F auid&gt;=1000 -F auid!=unset -F key=access-audit-trail
 ## Attempts to Alter Process and Session Initiation Information
@@ -4518,7 +4540,42 @@ operating system in <code>/boot/loader/entries/*.conf</code>.</td>
 <td></td>
 <td>IOMMU configuration directive</td>
 <td xml:lang="en-US">On x86 architecture supporting VT-d, the IOMMU manages the access control policy between the hardware devices and some
-    of the system critical units such as the memory.</td>
+    of the system critical units such as the memory.
+Configure the default Grub2 kernel command line to contain iommu=force as follows:
+<pre># grub2-editenv - set "$(grub2-editenv - list | grep kernelopts) iommu=force"</pre>
+</td>
+</tr>
+<tr>
+<td></td>
+<td>Ensure SMAP is not disabled during boot</td>
+<td xml:lang="en-US">The SMAP is used to prevent the supervisor mode from unintentionally reading/writing into
+memory pages in the user space, it is enabled by default since Linux kernel 3.7.
+But it could be disabled through kernel boot parameters.
+
+Ensure that Supervisor Mode Access Prevention (SMAP) is not disabled by
+the <code>nosmap</code> boot paramenter option.
+
+Check that the line <pre>GRUB_CMDLINE_LINUX="..."</pre> within <code>/etc/default/grub</code>
+doesn't contain the argument <code>nosmap</code>.
+Run the following command to update command line for already installed kernels:
+<pre># grubby --update-kernel=ALL --remove-args="nosmap"</pre>
+</td>
+</tr>
+<tr>
+<td></td>
+<td>Ensure SMEP is not disabled during boot</td>
+<td xml:lang="en-US">The SMEP is used to prevent the supervisor mode from executing user space code,
+it is enabled by default since Linux kernel 3.0. But it could be disabled through
+kernel boot parameters.
+
+Ensure that Supervisor Mode Execution Prevention (SMEP) is not disabled by
+the <code>nosmep</code> boot paramenter option.
+
+Check that the line <pre>GRUB_CMDLINE_LINUX="..."</pre> within <code>/etc/default/grub</code>
+doesn't contain the argument <code>nosmep</code>.
+Run the following command to update command line for already installed kernels:
+<pre># grubby --update-kernel=ALL --remove-args="nosmep"</pre>
+</td>
 </tr>
 <tr>
 <td>CCE-83540-5</td>
@@ -5043,10 +5100,9 @@ add or correct the following line in
 <td>Ensure IPv6 is disabled through kernel boot parameter</td>
 <td xml:lang="en-US">To disable IPv6 protocol support in the Linux kernel,
 add the argument <code>ipv6.disable=1</code> to the default
-GRUB2 command line for the Linux operating system in
-
-<code>/boot/grub2/grubenv</code>, in the manner below:
-<pre>sudo  grub2-editenv - set "$(grub2-editenv - list | grep kernelopts) ipv6.disable=1"</pre>
+GRUB2 command line for the Linux operating system.
+Configure the default Grub2 kernel command line to contain ipv6.disable=1 as follows:
+<pre># grub2-editenv - set "$(grub2-editenv - list | grep kernelopts) ipv6.disable=1"</pre>
 </td>
 </tr>
 <tr>
@@ -6937,10 +6993,12 @@ for management connections made by chronyc.</td>
 <xccdf-1.1:sub xmlns:xccdf-1.1="http://checklists.nist.gov/xccdf/1.1" idref="var_time_service_set_maxpoll"></xccdf-1.1:sub> in <code>/etc/ntp.conf</code> or
 <code>/etc/chrony.conf</code> to continuously poll time servers. To configure
 <code>maxpoll</code> in <code>/etc/ntp.conf</code> or <code>/etc/chrony.conf</code>
-add the following:
+add the following after each `server`, `pool` or `peer` entry:
 <pre>maxpoll <xccdf-1.1:sub xmlns:xccdf-1.1="http://checklists.nist.gov/xccdf/1.1" idref="var_time_service_set_maxpoll"></xccdf-1.1:sub></pre>
 to <pre>server</pre> directives. If using chrony any <pre>pool</pre> directives
 should be configured too.
+If no <code>server</code> or <code>pool</code> directives are configured, the rule evaluates
+to pass.
 
 <p>
 Note that if the remediation shipping with this content is being used, the
@@ -7138,6 +7196,11 @@ spec:
 
 Note that this needs to be done for each <pre>MachineConfigPool</pre>
 </td>
+</tr>
+<tr>
+<td></td>
+<td>Ensure Chrony is only configured with the server directive</td>
+<td xml:lang="en-US">Check that Chrony only has time sources configured with the <code>server</code> directive.</td>
 </tr>
 <tr>
 <td></td>

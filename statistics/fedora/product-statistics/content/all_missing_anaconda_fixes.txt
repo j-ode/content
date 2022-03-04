@@ -226,6 +226,7 @@ chronyd_or_ntpd_set_maxpoll
 chronyd_or_ntpd_specify_multiple_servers
 chronyd_or_ntpd_specify_remote_server
 chronyd_run_as_chrony_user
+chronyd_server_directive
 chronyd_specify_remote_server
 configure_bashrc_exec_tmux
 configure_bind_crypto_policy
@@ -292,6 +293,7 @@ disable_ctrlaltdel_reboot
 disable_host_auth
 disable_logwatch_for_logserver
 disable_users_coredumps
+disallow_bypass_password_sudo
 display_login_attempts
 dnf-automatic_apply_updates
 dnf-automatic_security_updates_only
@@ -392,6 +394,8 @@ grub2_disable_interactive_boot
 grub2_enable_iommu_force
 grub2_enable_selinux
 grub2_ipv6_disable_argument
+grub2_nosmap_argument_absent
+grub2_nosmep_argument_absent
 grub2_nousb_argument
 grub2_page_poison_argument
 grub2_password
@@ -455,6 +459,7 @@ nfs_no_anonymous
 no_all_squash_exports
 no_direct_root_logins
 no_empty_passwords
+no_empty_passwords_etc_shadow
 no_files_unowned_by_user
 no_insecure_locks_exports
 no_legacy_plus_entries_etc_group
@@ -595,6 +600,7 @@ sudo_remove_no_authenticate
 sudo_remove_nopasswd
 sudo_require_authentication
 sudo_vdsm_nopasswd
+sudoers_default_includedir
 sudoers_explicit_command_args
 sudoers_no_command_negation
 sudoers_no_root_target

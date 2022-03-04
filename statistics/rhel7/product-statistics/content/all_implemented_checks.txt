@@ -212,6 +212,7 @@ chronyd_or_ntpd_set_maxpoll
 chronyd_or_ntpd_specify_multiple_servers
 chronyd_or_ntpd_specify_remote_server
 chronyd_run_as_chrony_user
+chronyd_server_directive
 chronyd_specify_remote_server
 clean_components_post_updating
 configure_etc_hosts_deny
@@ -270,6 +271,7 @@ disable_ctrlaltdel_reboot
 disable_host_auth
 disable_prelink
 disable_users_coredumps
+disallow_bypass_password_sudo
 display_login_attempts
 docker_selinux_enabled
 docker_storage_configured
@@ -404,6 +406,8 @@ grub2_enable_iommu_force
 grub2_enable_selinux
 grub2_ipv6_disable_argument
 grub2_no_removeable_media
+grub2_nosmap_argument_absent
+grub2_nosmep_argument_absent
 grub2_nousb_argument
 grub2_page_poison_argument
 grub2_password
@@ -498,6 +502,7 @@ network_nmcli_permissions
 network_sniffer_disabled
 no_direct_root_logins
 no_empty_passwords
+no_empty_passwords_etc_shadow
 no_files_unowned_by_user
 no_host_based_files
 no_insecure_locks_exports
@@ -565,6 +570,7 @@ package_opensc_installed
 package_openscap-scanner_installed
 package_openssh-server_installed
 package_openssh-server_removed
+package_pam_pwquality_installed
 package_pcsc-lite_installed
 package_policycoreutils_installed
 package_psacct_installed
@@ -1090,6 +1096,7 @@ sudo_require_reauthentication
 sudo_restrict_others_executable_permission
 sudo_restrict_privilege_elevation_to_authorized
 sudo_vdsm_nopasswd
+sudoers_default_includedir
 sudoers_explicit_command_args
 sudoers_no_command_negation
 sudoers_no_root_target
